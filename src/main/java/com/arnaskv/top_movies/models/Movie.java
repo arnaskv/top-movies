@@ -1,7 +1,9 @@
 package com.arnaskv.top_movies.models;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,7 +29,7 @@ public class Movie {
     @Column(nullable = false)
     private Float rating;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
         name = "movie_genre",
         joinColumns = @JoinColumn(name = "movie_id"),
