@@ -10,6 +10,7 @@ import com.arnaskv.top_movies.services.movie.MovieMapper;
 import com.arnaskv.top_movies.services.movie.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -81,5 +82,10 @@ public class TmdbService {
         }
 
         return List.of();
+    }
+
+    @Scheduled(cron = "@weekly")
+    public void refreshTop250Movies() {
+        getTop250Movies();
     }
 }
