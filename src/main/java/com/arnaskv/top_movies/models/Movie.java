@@ -10,25 +10,32 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder(toBuilder = true)
 @Entity
-@Getter
-@Setter
 public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false)
     private String title;
-
+    @Column(nullable = false)
+    private String overview;
+    @Column(nullable = false)
+    private Float popularity;
+    @Column(name = "poster_path", nullable = false)
+    private String posterPath;
     @Column(nullable = false)
     private Float rating;
-
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
         name = "movie_genre",

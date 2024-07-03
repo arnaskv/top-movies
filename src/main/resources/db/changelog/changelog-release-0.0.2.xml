@@ -23,4 +23,12 @@
             <dropTable tableName="genre"/>
         </rollback>
     </changeSet>
+
+    <changeSet id="add_unique_constraint_to_genre_name" author="arnas.kvedaravicius">
+        <addUniqueConstraint columnNames="name" tableName="genre" constraintName="uq_genre_name"/>
+
+        <rollback>
+            <dropUniqueConstraint uniqueColumns="name" tableName="genre" constraintName="uq_genre_name"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

@@ -26,4 +26,28 @@
             <dropTable tableName="movie"/>
         </rollback>
     </changeSet>
+
+    <changeSet id="add_movie_popularity_overview_posterpath_columns" author="arnas.kvedaravicius">
+        <addColumn tableName="movie">
+            <column name="overview" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="movie">
+            <column name="popularity" type="float">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="movie">
+            <column name="poster_path" type="tinytext">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="movie" columnName="overview"/>
+            <dropColumn tableName="movie" columnName="popularity"/>
+            <dropColumn tableName="movie" columnName="poster_path"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

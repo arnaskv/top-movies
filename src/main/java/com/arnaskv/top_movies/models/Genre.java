@@ -6,22 +6,24 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder(toBuilder = true)
 @Entity
-@Getter
-@Setter
 public class Genre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
-
     @ManyToMany(mappedBy = "genres")
     private Set<Movie> movies;
 }

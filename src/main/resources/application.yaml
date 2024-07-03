@@ -16,3 +16,12 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog-main.xml
+
+logging:
+  level:
+    org:
+      springframework:
+        jdbc: WARN
+        data: WARN
+        orm: WARN
+        hibernate: WARN
