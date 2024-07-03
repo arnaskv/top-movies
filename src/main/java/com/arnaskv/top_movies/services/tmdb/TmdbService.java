@@ -73,7 +73,7 @@ public class TmdbService {
 
     public List<Movie> getTopMovies(int page) {
         ResponseEntity<TmdbMovieResponse> response = restClient.get()
-                .uri("/discover/movie?include_adult=false&include_video=false&language=en-US&page={page}&sort_by=popularity.desc", page)
+                .uri("/movie/top_rated?language=en-US&page={page}", page)
                 .retrieve()
                 .toEntity(TmdbMovieResponse.class);
 
