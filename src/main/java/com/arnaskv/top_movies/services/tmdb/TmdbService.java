@@ -87,5 +87,6 @@ public class TmdbService {
     @Scheduled(cron = "@weekly")
     public void refreshTop250Movies() {
         getTop250Movies();
+        getAllMovieGenres();
     }
 }
