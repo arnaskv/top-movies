@@ -24,8 +24,8 @@ public class MovieController {
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<List<Movie>> refreshMovies() {
-        List<Movie> movies = tmdbService.getTop250Movies();
+    public ResponseEntity<List<Movie>> getNewMovies() {
+        List<Movie> movies = tmdbService.getTmdbTop250Movies();
         return ResponseEntity.ok(movies);
     }
 }

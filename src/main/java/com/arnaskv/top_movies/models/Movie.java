@@ -28,7 +28,7 @@ public class Movie {
     private Long id;
     @Column(nullable = false)
     private String title;
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String overview;
     @Column(nullable = false)
     private Float popularity;
@@ -40,7 +40,7 @@ public class Movie {
     @JoinTable(
         name = "movie_genre",
         joinColumns = @JoinColumn(name = "movie_id"),
-        inverseJoinColumns = @JoinColumn(name = "genre_id")
+        inverseJoinColumns = @JoinColumn(name = "tmdb_genre_id", referencedColumnName = "tmdb_id")
     )
     Set<Genre> genres;
 }

@@ -2,17 +2,14 @@ package com.arnaskv.top_movies.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.ToString;
 
 import java.util.List;
 
 @Getter
-@ToString
-public class TmdbMovieResponse {
+public class TmdbMovieResponseDto {
     private List<TmdbMovie> results;
 
     @Getter
-    @ToString
     public static class TmdbMovie {
         private Long id;
         private String title;

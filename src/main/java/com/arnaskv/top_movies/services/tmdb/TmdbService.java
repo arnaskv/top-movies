@@ -1,13 +1,12 @@
 package com.arnaskv.top_movies.services.tmdb;
 
-import com.arnaskv.top_movies.dto.TmdbGenreResponse;
-import com.arnaskv.top_movies.dto.TmdbMovieResponse;
-import com.arnaskv.top_movies.models.Genre;
+import com.arnaskv.top_movies.dto.TmdbMovieResponseDto;
+import com.arnaskv.top_movies.dto.TmdbMovieWithGenres;
 import com.arnaskv.top_movies.models.Movie;
-import com.arnaskv.top_movies.services.genre.GenreMapper;
+import com.arnaskv.top_movies.repositories.GenreRepository;
+import com.arnaskv.top_movies.repositories.MovieRepository;
 import com.arnaskv.top_movies.services.genre.GenreService;
 import com.arnaskv.top_movies.services.movie.MovieMapper;
-import com.arnaskv.top_movies.services.movie.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,42 +22,29 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TmdbService {
     private final RestClient restClient;
-    private final GenreMapper genreMapper;
     private final MovieMapper movieMapper;
     private final GenreService genreService;
-    private final MovieService movieService;
+    private final MovieRepository movieRepository;
+    private final GenreRepository genreRepository;
 
-    public List<Genre> filterNewGenres(List<Genre> genres) {
-        List<String> existingGenreNames = genreService.getAll().stream()
-                .map(Genre::getName)
-                .toList();
-        return genres.stream()
-                .filter(genre -> !existingGenreNames.contains(genre.getName()))
-                .collect(Collectors.toList());
+    @Scheduled(cron = "@weekly")
+    public void refreshTop250Movies() {
+        genreService.getTmdbMovieGenres();
+        getTmdbTop250Movies();
     }
 
-    public List<Genre> getAllMovieGenres() {
-        ResponseEntity<TmdbGenreResponse> response = restClient.get()
-                .uri("https://api.themoviedb.org/3/genre/movie/list?language=en")
-                .retrieve()
-                .toEntity(TmdbGenreResponse.class);
-
-        if (response.getBody() != null) {
-            List<Genre> genres = genreMapper.mapToGenres(response.getBody());
-            List<Genre> filteredGenres = filterNewGenres(genres);
-            genreService.saveAll(filteredGenres);
-            return filteredGenres;
-        }
-
-        return List.of();
+    public void refreshMovies(List<Movie> movies) {
+        genreRepository.findAll().forEach(genre -> genre.setMovies(new HashSet<>()));
+        movieRepository.deleteAll();
+        movieRepository.saveAll(movies);
     }
 
-    public List<Movie> getTop250Movies() {
+    public List<Movie> getTmdbTop250Movies() {
         List<Movie> movies = new ArrayList<>();
         int page = 1;
 
         while (movies.size() < 250) {
-            List<Movie> pageMovies = getTopMovies(page);
+            List<Movie> pageMovies = getTmdbTopMovies(page);
             if (pageMovies.isEmpty()) {
                 break;
             }
@@ -67,26 +54,38 @@ public class TmdbService {
 
         List<Movie> moviesNeeded = movies.subList(0, 250);
 
-        movieService.refreshMovies(moviesNeeded);
+        refreshMovies(moviesNeeded);
         return moviesNeeded;
     }
 
-    public List<Movie> getTopMovies(int page) {
-        ResponseEntity<TmdbMovieResponse> response = restClient.get()
+    public List<Movie> getTmdbTopMovies(int page) {
+        try {
+        ResponseEntity<TmdbMovieResponseDto> response = restClient.get()
                 .uri("/movie/top_rated?language=en-US&page={page}", page)
                 .retrieve()
-                .toEntity(TmdbMovieResponse.class);
+                .toEntity(TmdbMovieResponseDto.class);
 
-        if (response.getBody() != null) {
-            return movieMapper.mapToMovies(response.getBody());
+        if(response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Failed to get top rated movies");
         }
 
-        return List.of();
-    }
+        TmdbMovieResponseDto tmdbMovieResponseDto = response.getBody();
+        if(tmdbMovieResponseDto == null) {
+            throw new RuntimeException("Tmdb top rated movies not found");
+        }
 
-    @Scheduled(cron = "@weekly")
-    public void refreshTop250Movies() {
-        getTop250Movies();
-        getAllMovieGenres();
+        List<TmdbMovieWithGenres> moviesWithGenres = tmdbMovieResponseDto.getResults().stream()
+                .map(tmdbMovie -> new TmdbMovieWithGenres(
+                        tmdbMovie,
+                        tmdbMovie.getGenreIds().stream()
+                                .map(genreService::getByTmdbGenreId)
+                                .collect(Collectors.toSet())
+                ))
+                .collect(Collectors.toList());
+
+        return movieMapper.mapToMovies(moviesWithGenres);
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred while fetching tmdb top movies", e);
+        }
     }
 }

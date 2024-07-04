@@ -11,24 +11,19 @@
         </preConditions>
 
         <createTable tableName="genre">
-            <column name="id" type="bigint">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="name" type="tinytext">
-                <constraints nullable="false"/>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="tmdb_id" type="bigint">
+                <constraints nullable="false" unique="true"/>
             </column>
         </createTable>
 
         <rollback>
             <dropTable tableName="genre"/>
-        </rollback>
-    </changeSet>
-
-    <changeSet id="add_unique_constraint_to_genre_name" author="arnas.kvedaravicius">
-        <addUniqueConstraint columnNames="name" tableName="genre" constraintName="uq_genre_name"/>
-
-        <rollback>
-            <dropUniqueConstraint uniqueColumns="name" tableName="genre" constraintName="uq_genre_name"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>

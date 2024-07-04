@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class TmdbGenreResponse {
+public class TmdbGenreResponseDto {
     private List<TmdbGenre> genres;
 
     @Getter
