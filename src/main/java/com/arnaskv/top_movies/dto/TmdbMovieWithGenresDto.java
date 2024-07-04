@@ -6,11 +6,11 @@ import lombok.Getter;
 import java.util.Set;
 
 @Getter
-public class TmdbMovieWithGenres {
+public class TmdbMovieWithGenresDto {
     final TmdbMovieResponseDto.TmdbMovie tmdbMovie;
     final Set<Genre> genres;
 
-    public TmdbMovieWithGenres(TmdbMovieResponseDto.TmdbMovie tmdbMovie, Set<Genre> genres) {
+    public TmdbMovieWithGenresDto(TmdbMovieResponseDto.TmdbMovie tmdbMovie, Set<Genre> genres) {
         this.tmdbMovie = tmdbMovie;
         this.genres = genres;
     }

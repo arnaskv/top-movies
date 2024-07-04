@@ -1,7 +1,7 @@
 package com.arnaskv.top_movies.services.movie;
 
 import com.arnaskv.top_movies.dto.MovieResponseDto;
-import com.arnaskv.top_movies.dto.TmdbMovieWithGenres;
+import com.arnaskv.top_movies.dto.TmdbMovieWithGenresDto;
 import com.arnaskv.top_movies.models.Movie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class MovieMapper {
                 .build();
     }
 
-    public List<Movie> mapToMovies(List<TmdbMovieWithGenres> moviesWithGenres) {
+    public List<Movie> mapToMovies(List<TmdbMovieWithGenresDto> moviesWithGenres) {
         return moviesWithGenres.stream()
                 .map(mwg -> Movie.builder()
                         .title(mwg.getTmdbMovie().getTitle())
