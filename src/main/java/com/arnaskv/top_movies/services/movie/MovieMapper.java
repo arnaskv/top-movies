@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class MovieMapper {
-
+    // Map movie entity to our api response
     public MovieResponseDto mapToMovieResponseDto(Movie movie) {
         return MovieResponseDto.builder()
                 .id(movie.getId())
@@ -24,6 +24,7 @@ public class MovieMapper {
                 .build();
     }
 
+    // Map movies with genre data to our movie entity
     public List<Movie> mapToMovies(List<TmdbMovieWithGenresDto> moviesWithGenres) {
         return moviesWithGenres.stream()
                 .map(mwg -> Movie.builder()

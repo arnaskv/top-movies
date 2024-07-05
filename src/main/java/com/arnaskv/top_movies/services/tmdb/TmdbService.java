@@ -6,6 +6,7 @@ import com.arnaskv.top_movies.models.Movie;
 import com.arnaskv.top_movies.repositories.MovieRepository;
 import com.arnaskv.top_movies.services.genre.GenreService;
 import com.arnaskv.top_movies.services.movie.MovieMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,12 +31,21 @@ public class TmdbService {
         getTmdbTop250Movies();
     }
 
+    // Remove previous movies and their genres and replace with new
+    @Transactional
     public void refreshMovies(List<Movie> newMovies) {
+        List<Movie> movies = movieRepository.findAll();
+        for (Movie movie : movies) {
+            movie.getGenres().clear();
+        }
+        movieRepository.saveAll(movies);
+
         movieRepository.deleteAllMovieGenreRelationships();
         movieRepository.deleteAll();
         movieRepository.saveAll(newMovies);
     }
 
+    // Fetch 250 movies from tmdb and replace the old ones
     public List<Movie> getTmdbTop250Movies() {
         List<Movie> movies = new ArrayList<>();
         int page = 1;
@@ -55,6 +65,7 @@ public class TmdbService {
         return moviesNeeded;
     }
 
+    //Fetch a single page of top rated movies from tmdb
     public List<Movie> getTmdbTopMovies(int page) {
         try {
         ResponseEntity<TmdbMovieResponseDto> response = restClient.get()
@@ -67,6 +78,7 @@ public class TmdbService {
             throw new RuntimeException("Tmdb top rated movies not found");
         }
 
+        // Map tmdb movie data to movie including genre information
         List<TmdbMovieWithGenresDto> moviesWithGenres = tmdbMovieResponseDto.getResults().stream()
                 .map(tmdbMovie -> new TmdbMovieWithGenresDto(
                         tmdbMovie,

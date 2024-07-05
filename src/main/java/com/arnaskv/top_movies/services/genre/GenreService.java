@@ -58,6 +58,7 @@ public class GenreService {
         return genreFound.get();
     }
 
+    // Fetch new genres from tmdb and add only those which are not yet in db
     public List<Genre> getTmdbMovieGenres() {
         ResponseEntity<TmdbGenreResponseDto> response = restClient.get()
                 .uri("https://api.themoviedb.org/3/genre/movie/list?language=en")
@@ -74,6 +75,7 @@ public class GenreService {
         return List.of();
     }
 
+    // Check genre repository for matching genres
     public List<Genre> filterNewGenres(List<Genre> genres) {
         List<String> existingGenreNames = getAll().stream()
                 .map(Genre::getName)
@@ -82,5 +84,4 @@ public class GenreService {
                 .filter(genre -> !existingGenreNames.contains(genre.getName()))
                 .collect(Collectors.toList());
     }
-
 }
