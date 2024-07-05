@@ -60,19 +60,24 @@ public class GenreService {
 
     // Fetch new genres from tmdb and add only those which are not yet in db
     public List<Genre> getTmdbMovieGenres() {
-        ResponseEntity<TmdbGenreResponseDto> response = restClient.get()
-                .uri("https://api.themoviedb.org/3/genre/movie/list?language=en")
-                .retrieve()
-                .toEntity(TmdbGenreResponseDto.class);
+        try {
+            ResponseEntity<TmdbGenreResponseDto> response = restClient.get()
+                    .uri("https://api.themoviedb.org/3/genre/movie/list?language=en")
+                    .retrieve()
+                    .toEntity(TmdbGenreResponseDto.class);
 
-        if (response.getBody() != null) {
+            if (response.getBody() == null) {
+                throw new RuntimeException("Received null response body from TMDB API");
+            }
+
             List<Genre> genres = genreMapper.mapToGenres(response.getBody());
             List<Genre> filteredGenres = filterNewGenres(genres);
             saveAll(filteredGenres);
-            return filteredGenres;
-        }
 
-        return List.of();
+            return filteredGenres;
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected error fetching genres", e);
+        }
     }
 
     // Check genre repository for matching genres
